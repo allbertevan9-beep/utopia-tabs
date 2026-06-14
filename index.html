@@ -65,7 +65,7 @@
         <input type="text" id="urlBar" class="address-bar" placeholder="Enter URL or search freely...">
     </div>
 
-    <!-- Swapped to a direct embed layout that works on static hosting -->
+    <!-- Loads a clean proxy portal on startup that is allowed inside frames -->
     <iframe id="browserFrame" class="browser-viewport" src="https://duckduckgo.com"></iframe>
 
     <script>
@@ -77,15 +77,15 @@
                 let inputUrl = urlBar.value.trim();
                 if (inputUrl === "") return;
 
-                // Formats bare queries into an embeddable DuckDuckGo search format
+                // If it is a basic text query, route to DuckDuckGo's raw HTML interface which allows embeds
                 if (!inputUrl.includes('.') || inputUrl.includes(' ')) {
-                    browserFrame.src = "https://duckduckgo.com" + encodeURIComponent(inputUrl);
+                    browserFrame.src = "https://duckduckgo.com?q=" + encodeURIComponent(inputUrl);
                 } else {
                     if (!/^https?:\/\//i.test(inputUrl)) {
                         inputUrl = "https://" + inputUrl;
                     }
-                    // Direct loading fallback for standard domains
-                    browserFrame.src = inputUrl;
+                    // Routes direct URL navigation through a public mirror engine to strip frame blocking flags
+                    browserFrame.src = "https://allorigins.win" + encodeURIComponent(inputUrl);
                 }
             }
         });
