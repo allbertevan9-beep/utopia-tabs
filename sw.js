@@ -1,18 +1,18 @@
-// Lightweight client-side request rewriter to strip frame restrictions
-self.addEventListener('fetch', (event) => {
-    let requestUrl = event.request.url;
+// Corrosion-based browser proxy interceptor
+importScripts('https://jsdelivr.net');
 
-    // Check if the request is trying to load a site inside our proxy path
-    if (requestUrl.includes('/proxy/')) {
-        let targetUrl = decodeURIComponent(requestUrl.split('/proxy/')[1]);
+const proxy = new Corrosion({
+    prefix: '/proxy/',
+    codec: 'base64',
+    config: {
+        title: 'Utopia Tabs',
+        inputs: true,
+        keyword: 'https://bing.com'
+    }
+});
 
-        // Route the request through a clean public web gateway that strips X-Frame headers
-        let proxyGateway = "https://corsproxy.io?" + encodeURIComponent(targetUrl);
-
-        event.respondWith(
-            fetch(proxyGateway, {
-                headers: { 'X-Frame-Options': 'ALLOWALL' }
-            }).catch(() => fetch(event.request))
-        );
+self.addEventListener('fetch', (e) => {
+    if (e.request.url.includes(location.origin + '/proxy/')) {
+        e.respondWith(proxy.fetch(e));
     }
 });
