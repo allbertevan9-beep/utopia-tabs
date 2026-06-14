@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internal Unblocked Browser</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0f0f11;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+        .browser-header {
+            background-color: #1a1b1f;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-bottom: 1px solid #2b2c32;
+        }
+        .logo-badge {
+            background: #2b2c32;
+            color: #4ade80; 
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .tab-title {
+            color: #9ca3af;
+            font-size: 13px;
+            margin-right: 10px;
+        }
+        .address-bar {
+            flex-grow: 1;
+            background-color: #25262b;
+            border: 1px solid #383a42;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: #ffffff;
+            font-size: 13px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .address-bar:focus {
+            border: 1px solid #4ade80;
+        }
+        .browser-viewport {
+            width: 100%;
+            height: calc(100vh - 54px);
+            border: none;
+            background-color: #141517;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="browser-header">
+        <div class="logo-badge">U</div>
+        <div class="tab-title">Utopia Tabs</div>
+        <input type="text" id="urlBar" class="address-bar" placeholder="Enter URL or search freely...">
+    </div>
+
+    <!-- Transparent cloud gateway proxy to prevent standard iframe blocking -->
+    <iframe id="browserFrame" class="browser-viewport" src="https://googleusercontent.com"></iframe>
+
+    <script>
+        const urlBar = document.getElementById('urlBar');
+        const browserFrame = document.getElementById('browserFrame');
+
+        urlBar.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                let inputUrl = urlBar.value.trim();
+                if (inputUrl === "") return;
+
+                // Standard search query parser
+                if (!inputUrl.includes('.') || inputUrl.includes(' ')) {
+                    inputUrl = "https://duckduckgo.com" + encodeURIComponent(inputUrl);
+                } else if (!/^https?:\/\//i.test(inputUrl)) {
+                    inputUrl = "https://" + inputUrl;
+                }
+
+                // Utilizes Google's global static proxy gateway to automatically strip X-Frame flags
+                const staticGatewayUrl = "https://googleusercontent.com" + encodeURIComponent(inputUrl);
+                browserFrame.src = staticGatewayUrl;
+            }
+        });
+    </script>
+
+</body>
+</html>
