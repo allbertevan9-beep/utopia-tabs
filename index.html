@@ -65,28 +65,35 @@
         <input type="text" id="urlBar" class="address-bar" placeholder="Enter URL or search freely...">
     </div>
 
-    <!-- Loads a clean proxy portal on startup that is allowed inside frames -->
-    <iframe id="browserFrame" class="browser-viewport" src="https://duckduckgo.com"></iframe>
+    <iframe id="browserFrame" class="browser-viewport" src="about:blank"></iframe>
 
     <script>
         const urlBar = document.getElementById('urlBar');
         const browserFrame = document.getElementById('browserFrame');
+        
+        // This links directly to your successful Vercel deployment
+        const VERCEL_PROXY = "https://vercel.app";
+
+        // Initial setup opens your Vercel backend main page inside the frame
+        browserFrame.src = VERCEL_PROXY + "/";
 
         urlBar.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 let inputUrl = urlBar.value.trim();
                 if (inputUrl === "") return;
 
-                // If it is a basic text query, route to DuckDuckGo's raw HTML interface which allows embeds
+                // Formats bare queries into standard search strings
                 if (!inputUrl.includes('.') || inputUrl.includes(' ')) {
-                    browserFrame.src = "https://duckduckgo.com?q=" + encodeURIComponent(inputUrl);
-                } else {
-                    if (!/^https?:\/\//i.test(inputUrl)) {
-                        inputUrl = "https://" + inputUrl;
-                    }
-                    // Routes direct URL navigation through a public mirror engine to strip frame blocking flags
-                    browserFrame.src = "https://allorigins.win" + encodeURIComponent(inputUrl);
+                    inputUrl = "https://duckduckgo.com" + encodeURIComponent(inputUrl);
+                } else if (!/^https?:\/\//i.test(inputUrl)) {
+                    inputUrl = "https://" + inputUrl;
                 }
+
+                // Encodes the target URL using Ultraviolet's internal path structure
+                let encodedUrl = btoa(inputUrl);
+                
+                // Forces the frame to bypass Google Sites sandbox tracking using an anonymous data stream
+                browserFrame.src = VERCEL_PROXY + "/service/" + encodedUrl;
             }
         });
     </script>
