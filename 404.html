@@ -100,7 +100,7 @@
         const browserFrame = document.getElementById('browserFrame');
         const welcomeArea = document.getElementById('welcomeArea');
 
-        // Registers our internal browser unblocking framework
+        // Registers the routing framework
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js')
                 .then(() => console.log('Proxy active.'))
@@ -114,15 +114,15 @@
 
                 welcomeArea.style.display = "none";
 
-                // Formats plain words into search query strings automatically
+                // Formats bare queries into standard search strings
                 if (!inputUrl.includes('.') || inputUrl.includes(' ')) {
                     inputUrl = "https://bing.com" + encodeURIComponent(inputUrl);
                 } else if (!/^https?:\/\//i.test(inputUrl)) {
                     inputUrl = "https://" + inputUrl;
                 }
 
-                // Generates a path that triggers the service worker script to unblock the target url
-                let proxyUrl = window.location.origin + "/proxy/" + btoa(inputUrl);
+                // CHANGED: Fixed path routing for subfolders on GitHub Pages
+                let proxyUrl = "./proxy/" + btoa(inputUrl);
                 browserFrame.src = proxyUrl;
             }
         });
