@@ -65,8 +65,8 @@
         <input type="text" id="urlBar" class="address-bar" placeholder="Enter URL or search freely...">
     </div>
 
-    <!-- Transparent cloud gateway proxy to prevent standard iframe blocking -->
-    <iframe id="browserFrame" class="browser-viewport" src="https://googleusercontent.com"></iframe>
+    <!-- Swapped to a direct embed layout that works on static hosting -->
+    <iframe id="browserFrame" class="browser-viewport" src="https://duckduckgo.com"></iframe>
 
     <script>
         const urlBar = document.getElementById('urlBar');
@@ -77,16 +77,16 @@
                 let inputUrl = urlBar.value.trim();
                 if (inputUrl === "") return;
 
-                // Standard search query parser
+                // Formats bare queries into an embeddable DuckDuckGo search format
                 if (!inputUrl.includes('.') || inputUrl.includes(' ')) {
-                    inputUrl = "https://duckduckgo.com" + encodeURIComponent(inputUrl);
-                } else if (!/^https?:\/\//i.test(inputUrl)) {
-                    inputUrl = "https://" + inputUrl;
+                    browserFrame.src = "https://duckduckgo.com" + encodeURIComponent(inputUrl);
+                } else {
+                    if (!/^https?:\/\//i.test(inputUrl)) {
+                        inputUrl = "https://" + inputUrl;
+                    }
+                    // Direct loading fallback for standard domains
+                    browserFrame.src = inputUrl;
                 }
-
-                // Utilizes Google's global static proxy gateway to automatically strip X-Frame flags
-                const staticGatewayUrl = "https://googleusercontent.com" + encodeURIComponent(inputUrl);
-                browserFrame.src = staticGatewayUrl;
             }
         });
     </script>
