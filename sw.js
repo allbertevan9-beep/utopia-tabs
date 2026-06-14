@@ -1,4 +1,3 @@
-// Corrosion-based browser proxy interceptor
 importScripts('https://jsdelivr.net');
 
 const proxy = new Corrosion({
@@ -12,7 +11,7 @@ const proxy = new Corrosion({
 });
 
 self.addEventListener('fetch', (e) => {
-    if (e.request.url.includes(location.origin + '/proxy/')) {
+    if (e.request.url.includes('/proxy/')) {
         e.respondWith(proxy.fetch(e));
     }
 });
