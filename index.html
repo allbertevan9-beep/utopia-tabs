@@ -55,6 +55,30 @@
             border: none;
             background-color: #141517;
         }
+        /* New custom startup landing area styling */
+        .welcome-screen {
+            position: absolute;
+            top: 54px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 54px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #141517;
+            z-index: 10;
+        }
+        .welcome-title {
+            font-size: 32px;
+            color: #4ade80;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .welcome-sub {
+            font-size: 14px;
+            color: #6b7280;
+        }
     </style>
 </head>
 <body>
@@ -65,14 +89,19 @@
         <input type="text" id="urlBar" class="address-bar" placeholder="Enter URL or search freely...">
     </div>
 
-    <!-- Falls back to an embeddable search mirror on startup -->
-    <iframe id="browserFrame" class="browser-viewport" src="https://duckduckgo.com"></iframe>
+    <!-- Clean Startup UI that won't trigger frame blocks -->
+    <div id="welcomeArea" class="welcome-screen">
+        <div class="welcome-title">Utopia Tabs</div>
+        <div class="welcome-sub">Type a web address or search term above and press Enter to begin</div>
+    </div>
+
+    <iframe id="browserFrame" class="browser-viewport" src="about:blank"></iframe>
 
     <script>
         const urlBar = document.getElementById('urlBar');
         const browserFrame = document.getElementById('browserFrame');
+        const welcomeArea = document.getElementById('welcomeArea');
 
-        // Registers the local client-side proxy service worker script
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js')
                 .then(() => console.log('Proxy Engine Active'))
@@ -84,18 +113,19 @@
                 let inputUrl = urlBar.value.trim();
                 if (inputUrl === "") return;
 
-                // Formats bare queries into an embeddable raw HTML search format
+                // Hide welcome screen to display the viewport
+                welcomeArea.style.display = "none";
+
+                // If it's a search term, route through a completely open search endpoint
                 if (!inputUrl.includes('.') || inputUrl.includes(' ')) {
-                    browserFrame.src = "https://duckduckgo.com?q=" + encodeURIComponent(inputUrl);
+                    let searchEngineUrl = "https://bing.com" + encodeURIComponent(inputUrl);
+                    browserFrame.src = "https://allorigins.win" + encodeURIComponent(searchEngineUrl);
                 } else {
                     if (!/^https?:\/\//i.test(inputUrl)) {
                         inputUrl = "https://" + inputUrl;
                     }
                     
-                    // Derives the current deployment base path dynamically
                     let basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-                    
-                    // Routes the site directly into our background service worker router
                     browserFrame.src = basePath + "proxy/" + encodeURIComponent(inputUrl);
                 }
             }
