@@ -55,7 +55,6 @@
             border: none;
             background-color: #141517;
         }
-        /* New custom startup landing area styling */
         .welcome-screen {
             position: absolute;
             top: 54px;
@@ -89,7 +88,6 @@
         <input type="text" id="urlBar" class="address-bar" placeholder="Enter URL or search freely...">
     </div>
 
-    <!-- Clean Startup UI that won't trigger frame blocks -->
     <div id="welcomeArea" class="welcome-screen">
         <div class="welcome-title">Utopia Tabs</div>
         <div class="welcome-sub">Type a web address or search term above and press Enter to begin</div>
@@ -102,10 +100,11 @@
         const browserFrame = document.getElementById('browserFrame');
         const welcomeArea = document.getElementById('welcomeArea');
 
+        // Registers our internal browser unblocking framework
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js')
-                .then(() => console.log('Proxy Engine Active'))
-                .catch(err => console.log('Engine initialization error:', err));
+                .then(() => console.log('Proxy active.'))
+                .catch(err => console.error('Engine error:', err));
         }
 
         urlBar.addEventListener('keypress', function(e) {
@@ -113,21 +112,18 @@
                 let inputUrl = urlBar.value.trim();
                 if (inputUrl === "") return;
 
-                // Hide welcome screen to display the viewport
                 welcomeArea.style.display = "none";
 
-                // If it's a search term, route through a completely open search endpoint
+                // Formats plain words into search query strings automatically
                 if (!inputUrl.includes('.') || inputUrl.includes(' ')) {
-                    let searchEngineUrl = "https://bing.com" + encodeURIComponent(inputUrl);
-                    browserFrame.src = "https://allorigins.win" + encodeURIComponent(searchEngineUrl);
-                } else {
-                    if (!/^https?:\/\//i.test(inputUrl)) {
-                        inputUrl = "https://" + inputUrl;
-                    }
-                    
-                    let basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-                    browserFrame.src = basePath + "proxy/" + encodeURIComponent(inputUrl);
+                    inputUrl = "https://bing.com" + encodeURIComponent(inputUrl);
+                } else if (!/^https?:\/\//i.test(inputUrl)) {
+                    inputUrl = "https://" + inputUrl;
                 }
+
+                // Generates a path that triggers the service worker script to unblock the target url
+                let proxyUrl = window.location.origin + "/proxy/" + btoa(inputUrl);
+                browserFrame.src = proxyUrl;
             }
         });
     </script>
